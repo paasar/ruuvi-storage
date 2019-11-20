@@ -26,4 +26,12 @@
                                :humidity humidity}))
 
 (defn measurements [& {limit :limit :or {limit 30}}]
-  (j/query db ["SELECT name, temperature, pressure, humidity FROM measurements ORDER BY created DESC LIMIT ?" limit]))
+  (j/query db ["SELECT name,
+                       temperature,
+                       pressure,
+                       humidity,
+                       datetime(created, 'localtime') as created
+                  FROM measurements
+                  ORDER BY created DESC
+                  LIMIT ?"
+               limit]))

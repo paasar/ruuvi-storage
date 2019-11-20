@@ -4,7 +4,8 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
-            [ruuvi-storage.repository :refer [initiate-db! measurements save!]]))
+            [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
+            [ruuvi-storage.view :refer [main-view]]))
 
 (def ^:private latest (atom []))
 
@@ -16,13 +17,14 @@
       (throw (Exception. (str "Could not parse request body as JSON. Body: " body "."))))))
 
 (defroutes app-routes
-  (GET "/" [] (str "Hello Measurements!<br/>" (json/generate-string (measurements))))
+  (GET "/" [limit] (main-view (measurements :limit (or limit 30))))
   (POST "/update" {:keys [body] :as req}
-    (let [json (body->json body)]
-      (reset! latest [json])
-      (save! json)
+    (let [measurements (body->json body)]
+      (reset! latest measurements)
+      (doseq [measurement measurements]
+        (save! measurement))
       {:status 200
-       :body (str "OK, got " json)}))
+       :body (str "OK, got " (json/generate-string measurements))}))
   (route/not-found "Not Found"))
 
 (def app

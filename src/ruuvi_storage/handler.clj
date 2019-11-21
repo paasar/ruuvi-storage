@@ -17,8 +17,13 @@
     (catch Exception _
       (throw (Exception. (str "Could not parse request body as JSON. Body: " body "."))))))
 
+(defn- parse-limit [limit]
+  (if (nil? limit)
+    30
+    (Integer/parseInt limit)))
+
 (defroutes app-routes
-  (GET "/" [limit] (main-view (measurements :limit (or limit 30))))
+  (GET "/" [limit] (main-view (measurements (parse-limit limit))))
   (POST "/update" {:keys [body] :as req}
     (let [measurements (body->json body)]
       (reset! latest measurements)

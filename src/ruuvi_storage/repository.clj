@@ -25,7 +25,8 @@
                                :pressure pressure
                                :humidity humidity}))
 
-(defn measurements [& {limit :limit :or {limit 30}}]
+(defn measurements [limit]
+  {:pre [(and (integer? limit) (pos? limit) (< limit 10000))]}
   (j/query db ["SELECT name,
                        temperature,
                        pressure,

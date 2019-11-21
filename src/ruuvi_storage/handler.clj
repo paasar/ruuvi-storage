@@ -1,5 +1,6 @@
 (ns ruuvi-storage.handler
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
+            [clojure.tools.logging :refer [error]]
             [cheshire.core :as json]
             [compojure.core :refer :all]
             [compojure.route :as route]
@@ -27,8 +28,17 @@
        :body (str "OK, got " (json/generate-string measurements))}))
   (route/not-found "Not Found"))
 
+(defn- wrap-catch-exceptions [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Throwable t
+        (error (format "Unexpected error. Error message: %s" (.getMessage t)) t)
+        {:status 500
+         :body "Sorry, something went wrong."}))))
+
 (def app
   (do (initiate-db!)
-      (wrap-defaults
-        app-routes
-        (assoc-in site-defaults [:security :anti-forgery] false))))
+      (-> app-routes
+          (wrap-defaults (assoc-in site-defaults [:security :anti-forgery] false))
+          wrap-catch-exceptions)))

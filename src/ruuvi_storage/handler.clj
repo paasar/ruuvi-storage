@@ -5,6 +5,7 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+            [ring.util.response :refer [redirect]]
             [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
             [ruuvi-storage.view :refer [main-view]]))
 
@@ -23,7 +24,10 @@
     (Integer/parseInt limit)))
 
 (defroutes app-routes
-  (GET "/" [limit] (main-view (measurements (parse-limit limit))))
+  (GET "/" _ (redirect "index.html"))
+
+  (GET "/index.html" [limit] (main-view (measurements (parse-limit limit))))
+
   (POST "/update" {:keys [body] :as req}
     (let [measurements (body->json body)]
       (reset! latest measurements)
@@ -31,6 +35,9 @@
         (save! measurement))
       {:status 200
        :body (str "OK, got " (json/generate-string measurements))}))
+
+  (route/resources "resources/public")
+
   (route/not-found "Not Found"))
 
 (defn- wrap-catch-exceptions [handler]

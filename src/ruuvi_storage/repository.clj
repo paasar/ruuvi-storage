@@ -5,7 +5,7 @@
 (def db
   {:classname   "org.sqlite.JDBC"
    :subprotocol "sqlite"
-   :subname     "./ruuvi-storage.db"})
+   :subname     "./ruuvi-storage.sqlite.db"})
 
 (defn initiate-db! []
   (info "Initiating database")
@@ -25,14 +25,19 @@
                                :pressure pressure
                                :humidity humidity}))
 
+(defn- group-by-name [result]
+  (->> result
+       (group-by :name)
+       sort))
+
 (defn measurements [limit]
   {:pre [(and (integer? limit) (pos? limit) (< limit 10000))]}
-  (j/query db ["SELECT name,
-                       temperature,
-                       pressure,
-                       humidity,
-                       datetime(created, 'localtime') as created
-                  FROM measurements
-                  ORDER BY created DESC
-                  LIMIT ?"
-               limit]))
+  (group-by-name (j/query db ["SELECT name,
+                                      temperature,
+                                      pressure,
+                                      humidity,
+                                      datetime(created, 'localtime') as created
+                               FROM measurements
+                               ORDER BY created DESC
+                               LIMIT ?"
+                              limit])))

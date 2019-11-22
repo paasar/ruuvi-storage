@@ -1,19 +1,27 @@
 (ns ruuvi-storage.view
   (:require [hiccup.core :refer [html]]))
 
-(defn- measurements-view [measurements]
-  [:div.container
-   [:div.header "Location"]
-   [:div.header "Temperature"]
-   [:div.header "Pressure"]
-   [:div.header "Humidity"]
-   [:div.header "Created"]
-   (for [{:keys [name temperature pressure humidity created]} measurements]
-     (list [:div.item name]
-           [:div.item temperature]
-           [:div.item pressure]
-           [:div.item humidity]
-           [:div.item created]))])
+(defn- measurement-rows [measurements]
+  (for [{:keys [temperature pressure humidity created]} measurements]
+    (list [:div.item temperature]
+          [:div.item pressure]
+          [:div.item humidity]
+          [:div.item.timestamp created])))
+
+(defn- measurement-tables [measurements-all]
+  (for [[tag-name measurements] measurements-all]
+    [:div.measurement-table
+     [:div.tag-name tag-name]
+     [:div.data-grid
+      [:div.header "Temperature"]
+      [:div.header "Pressure"]
+      [:div.header "Humidity"]
+      [:div.header "Created"]
+      (measurement-rows measurements)]]))
+
+(defn- measurements-view [measurements-all]
+  [:div.content
+   (measurement-tables measurements-all)])
 
 (defn main-view [measurements]
   (html

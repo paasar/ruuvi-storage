@@ -1,0 +1,52 @@
+body {
+  --bg: #1d1d1d;
+  --fg: #ec4d40;
+  --fg-secondary: #bbb;
+  --fg-dim: rgba(150, 150, 150, 0.5);
+
+  background-color: var(--bg);
+  color: var(--fg);
+  padding: 0 15%;
+  font-size: 16px;
+}
+
+@media screen and (max-width: 640px) {
+  body {
+    padding: 0 5%;
+  }
+
+  .data-grid .header {
+    font-size: 13px;
+  }
+  .data-grid .timestamp {
+    font-size: 13px;
+  }
+}
+
+.measurement-table {
+  margin-bottom: 20px;
+}
+
+.tag-name {
+  display: inline-block;
+  padding: 0 30px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--fg-secondary);
+}
+
+.data-grid {
+   display: grid;
+   grid-template-columns: auto auto auto auto;
+}
+
+.data-grid .header {
+  color: var(--fg-secondary);
+  font-style: bold;
+  padding-right: 3px;
+  border-bottom: 1px solid var(--fg-secondary);
+  margin-bottom: 5px;
+}
+
+.data-grid .item {
+  border-bottom: 1px dashed var(--fg-dim);
+}

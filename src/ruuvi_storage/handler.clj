@@ -24,9 +24,7 @@
     (Integer/parseInt limit)))
 
 (defroutes app-routes
-  (GET "/" _ (redirect "index.html"))
-
-  (GET "/index.html" [limit] (main-view (measurements (parse-limit limit))))
+  (GET "/" [limit] (main-view (measurements (parse-limit limit))))
 
   (POST "/update" {:keys [body] :as req}
     (let [measurements (body->json body)]

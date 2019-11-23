@@ -51,10 +51,10 @@
     {:t created
      :y temperature}))
 
-(def ^:private colors ["rgba(255,99,132,1)"
-                       "rgba(44,132,132,1)"
-                       "rgba(50,132,255,1)"
-                       "rgba(210,180,67,1)"])
+(def ^:private colors ["rgb(200,30,82)"
+                       "rgb(24,102,102)"
+                       "rgb(20,72,190)"
+                       "rgb(130,130,10)"])
 
 (defn chart-data [measurements-all]
   {:datasets

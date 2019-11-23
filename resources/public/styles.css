@@ -1,8 +1,8 @@
 body {
-  --bg: #1d1d1d;
-  --fg: #ec4d40;
-  --fg-secondary: #bbb;
-  --fg-dim: rgba(150, 150, 150, 0.5);
+  --bg: #ec8b5e;
+  --fg: #141A46;
+  --fg-secondary: #cc2056;
+  --fg-dim: rgba(204, 32, 86, 0.5);
 
   background-color: var(--bg);
   color: var(--fg);

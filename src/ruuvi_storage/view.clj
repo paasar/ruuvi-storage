@@ -1,6 +1,20 @@
 (ns ruuvi-storage.view
   (:require [hiccup.core :refer [html]]))
 
+(defn- head []
+  [:head
+   [:meta  {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
+   [:link {:rel "stylesheet" :type "text/css" :href "./styles.css"}]
+   [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"
+             :crossorigin "anonymous"
+             :integrity "sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis="}]
+   [:link {:rel "stylesheet"
+           :type "text/css"
+           :href "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
+           :crossorigin="anonymous"
+           :integrity "sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E="}]
+   [:script {:type "text/javascript" :src "./loader.js"}]])
+
 (defn- chart []
   [:div.chart
    [:canvas#measurement-chart {:width "400" :height "400"}]])
@@ -31,18 +45,7 @@
 (defn main-view [measurements-all]
   (html
    [:html
-    [:head
-     [:meta  {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
-     [:link {:rel "stylesheet" :type "text/css" :href "./styles.css"}]
-     [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"
-               :crossorigin "anonymous"
-               :integrity "sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis="}]
-     [:link {:rel "stylesheet"
-             :type "text/css"
-             :href "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
-             :crossorigin="anonymous"
-             :integrity "sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E="}]
-     [:script {:type "text/javascript" :src "./loader.js"}]]
+    (head)
     [:body
      (measurements-view measurements-all)]]))
 

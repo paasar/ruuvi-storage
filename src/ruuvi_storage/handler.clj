@@ -7,7 +7,7 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :refer [redirect]]
             [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
-            [ruuvi-storage.view :refer [main-view]]))
+            [ruuvi-storage.view :refer [chart-data main-view]]))
 
 (def ^:private latest (atom []))
 
@@ -25,6 +25,13 @@
 
 (defroutes app-routes
   (GET "/" [limit] (main-view (measurements (parse-limit limit))))
+
+  (GET "/chart-data" [limit]
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body (-> (measurements (parse-limit limit))
+               chart-data
+               json/generate-string)})
 
   (POST "/update" {:keys [body] :as req}
     (let [measurements (body->json body)]

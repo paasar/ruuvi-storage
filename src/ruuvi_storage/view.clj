@@ -1,6 +1,10 @@
 (ns ruuvi-storage.view
   (:require [hiccup.core :refer [html]]))
 
+(defn- chart []
+  [:div.chart
+   [:canvas#measurement-chart {:width "400" :height "400"}]])
+
 (defn- measurement-rows [measurements]
   (for [{:keys [temperature pressure humidity created]} measurements]
     (list [:div.item temperature]
@@ -21,13 +25,41 @@
 
 (defn- measurements-view [measurements-all]
   [:div.content
+   (chart)
    (measurement-tables measurements-all)])
 
-(defn main-view [measurements]
+(defn main-view [measurements-all]
   (html
    [:html
     [:head
      [:meta  {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
-     [:link {:rel "stylesheet" :type "text/css" :href "./styles.css"}]]
+     [:link {:rel "stylesheet" :type "text/css" :href "./styles.css"}]
+     [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"
+               :crossorigin "anonymous"
+               :integrity "sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis="}]
+     [:link {:rel "stylesheet"
+             :type "text/css"
+             :href "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
+             :crossorigin="anonymous"
+             :integrity "sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E="}]
+     [:script {:type "text/javascript" :src "./loader.js"}]]
     [:body
-     (measurements-view measurements)]]))
+     (measurements-view measurements-all)]]))
+
+(defn- t-y-pairs [measurements]
+  (for [{:keys [temperature created]} measurements]
+    {:t created
+     :y temperature}))
+
+(def ^:private colors ["rgba(255,99,132,1)"
+                       "rgba(44,132,132,1)"
+                       "rgba(50,132,255,1)"
+                       "rgba(210,180,67,1)"])
+
+(defn chart-data [measurements-all]
+  {:datasets
+   (for [[[tag-name measurements] color] (map vector measurements-all (cycle colors))]
+      {:label tag-name
+       :data (t-y-pairs measurements)
+       :borderColor [color]
+       :borderWidth 1})})

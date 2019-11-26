@@ -23,7 +23,7 @@ body {
   }
 }
 
-.measurement-table {
+.chart, .measurement-table {
   margin-bottom: 20px;
 }
 

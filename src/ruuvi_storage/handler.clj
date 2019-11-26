@@ -9,8 +9,6 @@
             [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
             [ruuvi-storage.view :refer [chart-data main-view]]))
 
-(def ^:private latest (atom []))
-
 (defn- body->json [body]
   (try
     (let [body-str (slurp body)]
@@ -35,7 +33,6 @@
 
   (POST "/update" {:keys [body] :as req}
     (let [measurements (body->json body)]
-      (reset! latest measurements)
       (doseq [measurement measurements]
         (save! measurement))
       {:status 200

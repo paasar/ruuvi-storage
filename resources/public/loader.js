@@ -20,7 +20,7 @@ const createChart = data => {
                     ticks: {
                         min: 10,
                         stepSize: 1,
-                        max: 30}
+                        max: 27}
                 }]
             },
             legend: {

@@ -29,6 +29,7 @@
      :headers {"Content-Type" "application/json"}
      :body (-> (measurements (parse-limit limit))
                chart-data
+               ((fn [data] {:data data}))
                json/generate-string)})
 
   (POST "/update" {:keys [body] :as req}

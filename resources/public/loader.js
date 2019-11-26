@@ -37,8 +37,8 @@ window.onload = () => {
 
     fetch('chart-data?limit=' + limit)
         .then(response => response.json())
-        .then(data => {
-            createChart(data);
+        .then(json => {
+            createChart(json.data);
         });
 };
 

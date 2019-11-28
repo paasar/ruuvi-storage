@@ -16,9 +16,9 @@
   (j/execute! (db) "CREATE TABLE IF NOT EXISTS measurements (
                       id INTEGER PRIMARY KEY,
                       name VARCHAR NOT NULL,
-                      temperature INTEGER NOT NULL,
-                      pressure INTEGER NOT NULL,
-                      humidity INTEGER NOT NULL,
+                      temperature NUMERIC NOT NULL,
+                      pressure NUMERIC NOT NULL,
+                      humidity NUMERIC NOT NULL,
                       created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"))
 
 (defn save! [{tag-name :name {:keys [temperature pressure humidity]} :data}]

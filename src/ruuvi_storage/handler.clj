@@ -7,14 +7,18 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :refer [redirect]]
             [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
+            [ruuvi-storage.schema :refer [explain valid-measurements?]]
             [ruuvi-storage.view :refer [chart-data main-view]]))
 
-(defn- body->json [body]
+(defn- body->json [body-str]
   (try
-    (let [body-str (slurp body)]
-      (json/parse-string body-str ->kebab-case-keyword))
-    (catch Exception _
-      (throw (Exception. (str "Could not parse request body as JSON. Body: " body "."))))))
+    (let [measurements (json/parse-string body-str ->kebab-case-keyword)]
+      (when-not (valid-measurements? measurements)
+        (throw (Exception. (str "Invalid measurements. " (explain measurements)))))
+      {:measurements measurements})
+    (catch Exception e
+      (error e (str "Could not parse request body as JSON. Body: " body-str "."))
+      {:error "Invalid data. Expected something like this: [{\"name\": \"Upstairs\", \"temperature\": 20.0, \"pressure\": 1000.0, \"humidity\": 50.0}]"})))
 
 (defn- parse-limit [limit]
   (if (nil? limit)
@@ -33,11 +37,16 @@
                json/generate-string)})
 
   (POST "/update" {:keys [body] :as req}
-    (let [measurements (body->json body)]
-      (doseq [measurement measurements]
-        (save! measurement))
-      {:status 200
-       :body (str "OK, got " (json/generate-string measurements))}))
+    (let [{:keys [measurements error]} (body->json (slurp body))]
+      (if error
+        {:status 400
+         :body (json/generate-string {:error error})}
+        (do
+          (doseq [measurement measurements]
+            (save! measurement))
+          {:status 200
+           :body (json/generate-string {:result "OK"
+                                        :stored (count measurements)})}))))
 
   (route/resources "resources/public")
 

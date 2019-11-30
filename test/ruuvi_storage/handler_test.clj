@@ -8,11 +8,17 @@
             [ruuvi-storage.handler :refer :all]
             [ruuvi-storage.repository :refer [*db-file-name* initiate-db!]]))
 
+(def ^:private measurement-1
+  {:name "test"
+   :data {:temperature 10 :pressure 1000 :humidity 10}})
+
+(def ^:private measurement-2
+  {:name "other test"
+   :data {:temperature 20.5 :pressure 1010.5 :humidity 20.5}})
+
 (def ^:private two-measurements
-  [{:name "test"
-    :data {:temperature 10 :pressure 1000 :humidity 10}}
-   {:name "other test"
-    :data {:temperature 20 :pressure 1010 :humidity 20}}])
+  [measurement-1
+   measurement-2])
 
 (defn- delete-db-file []
   (delete-file *db-file-name* true))
@@ -26,6 +32,15 @@
 
 (use-fixtures :each with-test-db)
 
+(defn- post-update [data]
+  (app (mock/request :post "/update" data)))
+
+(defn- get-chart-data []
+  (app (mock/request :get "/chart-data")))
+
+(def ^:private invalid-data-response
+  {:error "Invalid data. Expected something like this: [{\"name\": \"Upstairs\", \"temperature\": 20.0, \"pressure\": 1000.0, \"humidity\": 50.0}]"})
+
 (deftest test-html-rendering-routes
   (testing "main route returns HTML without data"
     (let [response (app (mock/request :get "/"))]
@@ -34,13 +49,13 @@
              (:body response)))))
 
   (testing "inserted data is returned by main route"
-    (app (mock/request :post "/update" (generate-string two-measurements)))
+    (post-update (generate-string two-measurements))
     (let [{:keys [body status]} (app (mock/request :get "/"))]
       (is (= 200 status))
       (is (includes? body "<div class=\"tag-name\">test<"))
       (is (includes? body ">10</div><div class=\"item\">1000</div><div class=\"item\">10"))
       (is (includes? body "<div class=\"tag-name\">other test<"))
-      (is (includes? body ">20</div><div class=\"item\">1010</div><div class=\"item\">20"))))
+      (is (includes? body ">20.5</div><div class=\"item\">1010.5</div><div class=\"item\">20.5"))))
 
     (testing "not-found route"
       (let [response (app (mock/request :get "/invalid"))]
@@ -48,11 +63,38 @@
 
 (deftest test-chart-js-json-rendering-route
   (testing "inserted data is returned as chart.js line chart readable json"
-    (app (mock/request :post "/update" (generate-string two-measurements)))
-    (let [{:keys [body headers status]} (app (mock/request :get "/chart-data"))
+    (post-update (generate-string two-measurements))
+    (let [{:keys [body headers status]} (get-chart-data)
           [fst snd] (-> body (parse-string ->kebab-case-keyword) :data :datasets)]
       (is (= 200 status))
       (is (= "other test" (:label fst)))
-      (is (= 20 (-> fst :data first :y)))
+      (is (= 20.5 (-> fst :data first :y)))
       (is (= "test" (:label snd)))
       (is (= 10 (-> snd :data first :y))))))
+
+(deftest storing-data
+  (testing "invalid data returns 400"
+    (let [{status :status} (post-update "notjson")]
+      (is (= 400 status))))
+
+  (testing "empty data object returns 400"
+    (let [{:keys [body status]} (post-update (generate-string {}))]
+      (is (= 400 status))
+      (is (= (generate-string invalid-data-response) body))))
+
+  (testing "empty array returns 400"
+    (let [{:keys [body status]} (post-update (generate-string []))]
+      (is (= 400 status))
+      (is (= (generate-string invalid-data-response) body))))
+
+  (testing "one valid value is accepted and stored"
+    (let [{:keys [body status]} (post-update (generate-string [measurement-1]))
+          stored-measurement (-> (get-chart-data) :body (parse-string ->kebab-case-keyword) :data :datasets first)]
+      (is (= 200 status))
+      (is (= (generate-string {:result "OK" :stored 1}) body))
+      (is (= 10 (-> stored-measurement :data first :y)))))
+
+  (testing "two valid values is accepted and stored"
+    (let [{:keys [body status]} (post-update (generate-string two-measurements))]
+      (is (= 200 status))
+      (is (= (generate-string {:result "OK" :stored 2}) body)))))

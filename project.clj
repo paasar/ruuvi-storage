@@ -2,7 +2,7 @@
   :description "Server for saving and rendering RuuviTag data"
   :url "http://github.com/paasar/ruuvi-storage"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.0"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
                  [camel-snake-kebab "0.4.0"]
                  [cheshire "5.9.0"]
                  [compojure "1.6.1"]

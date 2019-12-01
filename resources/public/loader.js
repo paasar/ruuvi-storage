@@ -38,7 +38,11 @@ window.onload = () => {
     fetch('chart-data?limit=' + limit)
         .then(response => response.json())
         .then(json => {
-            createChart(json.data);
+            if (json.data) {
+                createChart(json.data);
+            } else {
+                console.log('Could not fetch chart data. Error message:', json.error);
+            }
         });
 };
 

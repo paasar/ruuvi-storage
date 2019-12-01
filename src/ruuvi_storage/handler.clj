@@ -1,12 +1,14 @@
 (ns ruuvi-storage.handler
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
-            [clojure.tools.logging :refer [error]]
+            [clojure.tools.logging :refer [error info]]
             [cheshire.core :as json]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :refer [redirect]]
+            [ruuvi-storage.alarm :refer [set-addresses]]
             [ruuvi-storage.repository :refer [initiate-db! measurements save!]]
+            [ruuvi-storage.scheduler :refer [start-background-jobs!]]
             [ruuvi-storage.schema :refer [explain valid-measurements?]]
             [ruuvi-storage.view :refer [chart-data main-view]]))
 
@@ -78,8 +80,18 @@
         {:status 500
          :body "Sorry, something went wrong."}))))
 
+(defn- start-email-job! []
+  (let [from (System/getenv "ALARM_EMAIL_FROM")
+        to (System/getenv "ALARM_EMAIL_TO")]
+    (if (and from to)
+      (do
+        (set-addresses from to)
+        (start-background-jobs!))
+      (info "Environment variables ALARM_EMAIL_FROM and ALARM_EMAIL_TO not set. Alarm emails disabled."))))
+
 (def app
   (do (initiate-db!)
+      (start-email-job!)
       (-> app-routes
           (wrap-defaults (assoc-in site-defaults [:security :anti-forgery] false))
           wrap-catch-exceptions)))

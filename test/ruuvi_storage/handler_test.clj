@@ -1,12 +1,11 @@
 (ns ruuvi-storage.handler-test
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
-            [clojure.java.io :refer [as-file delete-file]]
             [clojure.string :refer [includes?]]
             [clojure.test :refer :all]
             [cheshire.core :refer [generate-string parse-string]]
             [ring.mock.request :as mock]
             [ruuvi-storage.handler :refer :all]
-            [ruuvi-storage.repository :refer [*db-file-name* initiate-db!]]))
+            [ruuvi-storage.test-helpers :refer [with-test-db]]))
 
 (def ^:private measurement-1
   {:name "test"
@@ -19,16 +18,6 @@
 (def ^:private two-measurements
   [measurement-1
    measurement-2])
-
-(defn- delete-db-file []
-  (delete-file *db-file-name* true))
-
-(defn with-test-db [test]
-  (with-redefs [*db-file-name* "./test.sqlite.db"]
-    (delete-db-file)
-    (initiate-db!)
-    (test)
-    (delete-db-file)))
 
 (use-fixtures :each with-test-db)
 

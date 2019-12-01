@@ -24,6 +24,10 @@ To start a web server for the application, run:
 
     PORT=11111 java -server -jar target/ruuvi-storage-0.1.0-standalone.jar
 
+To enable alarm emails set from and to emails in environment variables.
+
+    ALARM_EMAIL_FROM=ruuvi-storage@example.com ALARM_EMAIL_TO=mypersonal@address.com PORT=11111 java -server -jar target/ruuvi-storage-0.1.0-standalone.jar
+
 ## Caveats
 
 There is no authentication or authorization implemented. One should use a separate gateway authenticator or firewall to secure this service.

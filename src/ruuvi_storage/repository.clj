@@ -23,9 +23,9 @@
 
 (defn save! [{tag-name :name {:keys [temperature pressure humidity]} :data}]
   (j/insert! (db) :measurements {:name tag-name
-                               :temperature temperature
-                               :pressure pressure
-                               :humidity humidity}))
+                                 :temperature temperature
+                                 :pressure pressure
+                                 :humidity humidity}))
 
 (defn- group-by-name [result]
   (->> result

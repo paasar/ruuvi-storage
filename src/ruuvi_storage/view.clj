@@ -64,5 +64,6 @@
    (for [[[tag-name measurements] color] (map vector measurements-all (cycle colors))]
       {:label tag-name
        :data (t-y-pairs measurements)
+       :backgroundColor "rgba(0, 0, 0, 0)"
        :borderColor [color]
        :borderWidth 1})})

@@ -17,10 +17,20 @@ const createChart = data => {
                     }
                 }],
                 yAxes: [{
+                    id: 'temperature',
                     ticks: {
                         min: 10,
                         stepSize: 1,
-                        max: 27}
+                        max: 27},
+                    position: 'left'
+                },
+                {
+                    id: 'humidity',
+                    ticks: {
+                        min: 10,
+                        stepSize: 5,
+                        max: 70},
+                    position: 'right'
                 }]
             },
             legend: {

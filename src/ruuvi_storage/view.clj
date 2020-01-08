@@ -49,10 +49,10 @@
     [:body
      (measurements-view measurements-all)]]))
 
-(defn- t-y-pairs [measurements]
-  (for [{:keys [temperature created]} measurements]
+(defn- t-y-pairs [data-type measurements]
+  (for [{:keys [created] :as measurement} measurements]
     {:t created
-     :y temperature}))
+     :y (data-type measurement)}))
 
 (def ^:private colors ["rgb(200,30,82)"
                        "rgb(24,102,102)"
@@ -61,9 +61,12 @@
 
 (defn chart-data [measurements-all]
   {:datasets
-   (for [[[tag-name measurements] color] (map vector measurements-all (cycle colors))]
-      {:label tag-name
-       :data (t-y-pairs measurements)
+   (for [data-type [:temperature :humidity]
+         [[tag-name measurements] color] (map vector measurements-all (cycle colors))]
+      {:label (str tag-name " - " (name data-type))
+       :yAxisID (name data-type)
+       :pointStyle (if (= data-type :temperature) "circle" "triangle")
+       :data (t-y-pairs data-type measurements)
        :backgroundColor "rgba(0, 0, 0, 0)"
        :borderColor [color]
        :borderWidth 1})})

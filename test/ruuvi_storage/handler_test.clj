@@ -13,7 +13,7 @@
 
 (def ^:private measurement-2
   {:name "other test"
-   :data {:temperature 20.5 :pressure 1010.5 :humidity 20.5}})
+   :data {:temperature 20.5 :pressure 1010.5 :humidity 50.5}})
 
 (def ^:private two-measurements
   [measurement-1
@@ -45,7 +45,7 @@
       (is (includes? body "<div class=\"tag-name\">test<"))
       (is (includes? body ">10</div><div class=\"item\">1000</div><div class=\"item\">10"))
       (is (includes? body "<div class=\"tag-name\">other test<"))
-      (is (includes? body ">20.5</div><div class=\"item\">1010.5</div><div class=\"item\">20.5"))))
+      (is (includes? body ">20.5</div><div class=\"item\">1010.5</div><div class=\"item\">50.5"))))
 
   (testing "invalid limit returns 400"
     (let [{:keys [body headers status]} (app (mock/request :get "/?limit=not-a-number"))]
@@ -61,13 +61,15 @@
   (testing "inserted data is returned as chart.js line chart readable json"
     (post-update (generate-string two-measurements))
     (let [{:keys [body headers status]} (get-chart-data)
-          [fst snd] (-> body (parse-string ->kebab-case-keyword) :data :datasets)]
+          [fst snd thd] (-> body (parse-string ->kebab-case-keyword) :data :datasets)]
       (is (= 200 status))
       (is (= "application/json" (get headers "Content-Type")))
-      (is (= "other test" (:label fst)))
+      (is (= "other test - temperature" (:label fst)))
       (is (= 20.5 (-> fst :data first :y)))
-      (is (= "test" (:label snd)))
-      (is (= 10 (-> snd :data first :y)))))
+      (is (= "test - temperature" (:label snd)))
+      (is (= 10 (-> snd :data first :y)))
+      (is (= "other test - humidity" (:label thd)))
+      (is (= 50.5 (-> thd :data first :y)))))
 
   (testing "invalid limit returns 400"
     (let [{:keys [body headers status]} (app (mock/request :get "/chart-data?limit=-1"))]

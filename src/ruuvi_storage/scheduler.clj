@@ -21,7 +21,7 @@
   (let [executor (ScheduledThreadPoolExecutor. 1)
         initial-delay 10
         one-hour-in-seconds 3600
-        delay-between (* 6 one-hour-in-seconds)
+        delay-between (* 1 one-hour-in-seconds)
         check-temperatures-job #(with-exception-handling check-temperatures!)]
     (info "Starting background jobs.")
     (.scheduleAtFixedRate executor

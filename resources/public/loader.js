@@ -22,15 +22,15 @@ const createChart = data => {
                         min: 10,
                         stepSize: 1,
                         max: 27},
-                    position: 'left'
+                    position: 'right'
                 },
                 {
                     id: 'humidity',
                     ticks: {
-                        min: 10,
-                        stepSize: 5,
-                        max: 70},
-                    position: 'right'
+                        min: 3,
+                        stepSize: 3,
+                        max: 54},
+                    position: 'left'
                 }]
             },
             legend: {

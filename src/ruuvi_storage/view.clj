@@ -54,19 +54,29 @@
     {:t created
      :y (data-type measurement)}))
 
-(def ^:private colors ["rgb(200,30,82)"
-                       "rgb(24,102,102)"
+(def ^:private colors ["rgb(240,200,60)"
+                       "rgb(200,30,82)"
+                       "rgb(44,122,122)"
                        "rgb(20,72,190)"
-                       "rgb(130,130,10)"])
+                       "rgb(100,50,80)"
+                       "rgb(190,200,190)"])
+
+(defn- next-color-fn []
+  (let [color-cycle (atom colors)]
+   (fn []
+     (let [color (first @color-cycle)]
+       (reset! color-cycle (concat (rest @color-cycle) [color]))
+       color))))
 
 (defn chart-data [measurements-all]
-  {:datasets
-   (for [data-type [:temperature :humidity]
-         [[tag-name measurements] color] (map vector measurements-all (cycle colors))]
-      {:label (str tag-name " - " (name data-type))
-       :yAxisID (name data-type)
-       :pointStyle (if (= data-type :temperature) "circle" "triangle")
-       :data (t-y-pairs data-type measurements)
-       :backgroundColor "rgba(0, 0, 0, 0)"
-       :borderColor [color]
-       :borderWidth 1})})
+  (let [next-color (next-color-fn)]
+    {:datasets
+     (for [data-type [:temperature :humidity]
+           [tag-name measurements] measurements-all]
+       {:label (str tag-name " - " (name data-type))
+        :yAxisID (name data-type)
+        :pointStyle (if (= data-type :temperature) "circle" "triangle")
+        :data (t-y-pairs data-type measurements)
+        :backgroundColor "rgba(0, 0, 0, 0)"
+        :borderColor [(next-color)]
+        :borderWidth 1})}))

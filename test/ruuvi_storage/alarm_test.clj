@@ -1,7 +1,8 @@
 (ns ruuvi-storage.alarm-test
   (:require [clojure.test :refer :all]
+            [java-time :as t]
             [postal.core :refer [send-message]]
-            [ruuvi-storage.alarm :refer [alarm-set? check-temperatures! reset-alarm!]]
+            [ruuvi-storage.alarm :refer [alarm-set? check-temperatures! now reset-alarm!]]
             [ruuvi-storage.repository :refer [save!]]
             [ruuvi-storage.test-helpers :refer [with-mock-email with-test-db]]))
 
@@ -42,9 +43,19 @@
 
 (deftest with-temperature-higher-than-threshold
   (save! {:name "test-temp-too-high" :data {:temperature 24.1 :pressure 1000 :humidity 50}})
-  (let [send-message-called (atom false)]
-    (with-redefs [send-message (fn [& _] (reset! send-message-called true))]
+  (let [send-message-body (atom nil)]
+    (with-redefs [send-message (fn [_ {:keys [body]}] (reset! send-message-body body))]
       (testing "should set alarm and send mail"
         (check-temperatures!)
         (is (true? (alarm-set?)))
-        (is (true? @send-message-called))))))
+        (is (= @send-message-body "Temperatures outside defined thresholds. Please check the situation."))))))
+
+(deftest with-too-old-measurements
+  (save! {:name "test-temp-all-ok" :data {:temperature 16 :pressure 1000 :humidity 50}})
+  (let [send-message-body (atom nil)]
+    (with-redefs [send-message (fn [_ {:keys [body]}] (reset! send-message-body body))
+                  now (fn [] (t/plus (t/local-date-time) (t/hours 3)))]
+      (testing "should set alarm and send mail"
+        (check-temperatures!)
+        (is (true? (alarm-set?)))
+        (is (= @send-message-body "Measurements are over 2 hours old. Please check the situation."))))))

@@ -42,7 +42,7 @@
         (is (false? @send-message-called))))))
 
 (deftest with-temperature-higher-than-threshold
-  (save! {:name "test-temp-too-high" :data {:temperature 26.1 :pressure 1000 :humidity 50}})
+  (save! {:name "test-temp-too-high" :data {:temperature 28.1 :pressure 1000 :humidity 50}})
   (let [send-message-body (atom nil)]
     (with-redefs [send-message (fn [_ {:keys [body]}] (reset! send-message-body body))]
       (testing "should set alarm and send mail"

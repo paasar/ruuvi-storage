@@ -28,7 +28,7 @@
   (let [temps (temperatures)
         minimum (apply min temps)
         maximum (apply max temps)]
-    (<= 15 minimum maximum 26)))
+    (<= 15 minimum maximum 28)))
 
 (defn now []
   (t/local-date-time))

@@ -19,17 +19,17 @@ const createChart = data => {
                 yAxes: [{
                     id: 'temperature',
                     ticks: {
-                        min: 10,
+                        min: 13,
                         stepSize: 1,
-                        max: 27},
+                        max: 30},
                     position: 'right'
                 },
                 {
                     id: 'humidity',
                     ticks: {
-                        min: 3,
+                        min: 21,
                         stepSize: 3,
-                        max: 54},
+                        max: 72},
                     position: 'left'
                 }]
             },
